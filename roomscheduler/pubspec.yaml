@@ -1,0 +1,25 @@
+name: roomscheduler
+description: "A new Flutter package project."
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: ^3.5.3
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_lints: 2.0.1
+  googleapis: ^11.4.0
+  googleapis_auth: ^1.4.0
+  table_calendar: ^3.0.7
+  camera: 0.10.2
+  syncfusion_flutter_calendar: ^25.1.35
+  flutter_colorpicker: ^1.0.3
+  google_sign_in: ^6.2.1
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
