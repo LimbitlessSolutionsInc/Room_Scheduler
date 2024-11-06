@@ -392,17 +392,18 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
       ),
       body: Column(
         children: [
-          _viewMode == 'week'
-              ? Expanded(child: _buildWeeklyView())
-              : Column(
-                  children: [
-                    _buildCalendarHeader(),
-                    _buildCalendarGrid(),
-                    Flexible(
-                      child: _buildSelectedDayEvents(),
-                    ),
-                  ],
-                ),
+          if (_viewMode == 'week')
+            Expanded(child: _buildWeeklyView())
+          else
+            Column(
+              children: [
+                _buildCalendarHeader(),
+                _buildCalendarGrid(),
+                // Add a small margin between the calendar and the event list
+                const SizedBox(height: 4), // Small adjustment
+                _buildSelectedDayEvents(),
+              ],
+            ),
         ],
       ),
     );
