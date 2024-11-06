@@ -364,26 +364,15 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Left-aligned dropdown
             _buildRoomDropdown(),
-            
-            // Conditionally centered title, shifted 30px to the left
-            Expanded(
-              child: Visibility(
-                visible: MediaQuery.of(context).size.width > 585,
-                child: Transform.translate(
-                  offset: const Offset(-70, 0), // Shift 30px to the left
-                  child: const Center(
-                    child: Text(
-                      'Schedule Room',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
+            const Expanded(
+              child: Center(
+                child: Text(
+                  'Schedule Room',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ),
-
-            // Right-aligned toggle button
             IconButton(
               icon: Icon(_viewMode == 'week' ? Icons.view_module : Icons.view_week),
               onPressed: () {
@@ -397,16 +386,23 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
       ),
       body: Column(
         children: [
+          // Calendar occupies a fixed proportion of the screen
           Expanded(
+            flex: 2, // Adjust as needed for desired calendar size
             child: _viewMode == 'week'
                 ? _buildWeeklyView()
                 : Column(
                     children: [
                       _buildCalendarHeader(),
                       Expanded(child: _buildCalendarGrid()),
-                      _buildSelectedDayEvents(),
                     ],
                   ),
+          ),
+          
+          // Meeting list fills the entire remaining space
+          Expanded(
+            flex: 1, // Always fixed size for the remaining space
+            child: _buildSelectedDayEvents(),
           ),
         ],
       ),
