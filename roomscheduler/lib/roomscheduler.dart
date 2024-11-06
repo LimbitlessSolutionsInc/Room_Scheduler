@@ -393,26 +393,17 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
       body: Column(
         children: [
           Expanded(
-            flex: 2, // Calendar takes up 2/3 of the screen
+            flex: 1,
             child: _viewMode == 'week'
                 ? _buildWeeklyView()
                 : Column(
                     children: [
                       _buildCalendarHeader(),
                       Expanded(child: _buildCalendarGrid()),
+                      // No gap, directly below
+                      _buildSelectedDayEvents(), 
                     ],
                   ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0), // Add padding to separate list from calendar
-            child: Container(
-              height: 1,
-              color: Colors.grey, // Optional divider line
-            ),
-          ),
-          Expanded(
-            flex: 1, // List takes up 1/3 of the screen
-            child: _buildSelectedDayEvents(),
           ),
         ],
       ),
