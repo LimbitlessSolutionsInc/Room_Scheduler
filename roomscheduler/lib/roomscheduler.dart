@@ -417,26 +417,24 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
   Widget _buildSelectedDayEvents() {
     List<calendar.Event> events = _selectedDay != null ? _getEventsForDay(_selectedDay!) : [];
   
-    return Expanded( // Ensure it fills the remaining space dynamically
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(8),
-        color: Colors.grey[850],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_selectedDay != null)
-              Text(
-                'Meetings for ${DateFormat.yMMMd().format(_selectedDay!)}',
-                style: const TextStyle(color: Colors.white, fontSize: 24),
-              )
-            else
-              const Text(
-                'No day selected',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            const SizedBox(height: 8),
-            Expanded( // Allow the list to take up all remaining space and scroll if needed
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            color: Colors.grey[850],
+            width: double.infinity,
+            child: Text(
+              _selectedDay != null
+                  ? 'Meetings for ${DateFormat.yMMMd().format(_selectedDay!)}'
+                  : 'No day selected',
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded( // Meeting list takes up all remaining space below calendar
+            child: Container(
+              color: Colors.grey[850], // Consistent background color
               child: events.isEmpty
                   ? const Center(
                       child: Text(
@@ -455,7 +453,7 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
                             _editOrDeleteEventPopup(context, events[index]);
                           },
                           child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 5.0),
+                            margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
                             padding: const EdgeInsets.all(8.0),
                             decoration: BoxDecoration(
                               color: Colors.teal.withOpacity(0.6),
@@ -463,7 +461,7 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
                             ),
                             child: Text(
                               '${DateFormat.jm().format(startTime)} - ${DateFormat.jm().format(endTime)}: ${events[index].summary ?? 'No Title'}',
-                              style: const TextStyle(fontSize: 18, color: Colors.white),
+                              style: const TextStyle(fontSize: 16, color: Colors.white),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -471,12 +469,12 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
                       },
                     ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-  
+    
   Widget _buildWeeklyView() {
     DateTime firstDayOfWeek = _firstDayOfWeek(_focusedDay);
     List<DateTime> weekDays = List.generate(7, (index) {
