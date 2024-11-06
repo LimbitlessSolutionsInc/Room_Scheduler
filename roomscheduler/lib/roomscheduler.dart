@@ -403,7 +403,7 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
                         child: _buildCalendarGrid(),
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.37, 
+                        height: MediaQuery.of(context).size.height * 0.36, 
                         child: _buildSelectedDayEvents(),
                       ),
                     ],
