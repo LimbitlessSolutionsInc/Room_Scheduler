@@ -384,67 +384,12 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          // Calendar occupies a fixed proportion of the screen
-          Expanded(
-            flex: 2, // Adjust as needed for desired calendar size
-            child: _viewMode == 'week'
-                ? _buildWeeklyView()
-                : Column(
-                    children: [
-                      _buildCalendarHeader(),
-                      Expanded(child: _buildCalendarGrid()),
-                    ],
-                  ),
-          ),
-          
-          // Meeting list fills the entire remaining space
-          Expanded(
-            flex: 1, // Always fixed size for the remaining space
-            child: _buildSelectedDayEvents(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Display the list of events for the selected day
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E2C),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildRoomDropdown(),
-            const Expanded(
-              child: Center(
-                child: Text(
-                  'Schedule Room',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            IconButton(
-              icon: Icon(_viewMode == 'week' ? Icons.view_module : Icons.view_week),
-              onPressed: () {
-                setState(() {
-                  _viewMode = _viewMode == 'week' ? 'month' : 'week';
-                });
-              },
-            ),
-          ],
-        ),
-      ),
-      body: LayoutBuilder( // Use LayoutBuilder to dynamically allocate space
+      body: LayoutBuilder(
         builder: (context, constraints) {
           return Column(
             children: [
-              // Calendar: fixed portion
               SizedBox(
-                height: constraints.maxHeight * 0.5, // Calendar takes 50%
+                height: constraints.maxHeight * 0.5, // Calendar occupies top 50%
                 child: _viewMode == 'week'
                     ? _buildWeeklyView()
                     : Column(
@@ -454,16 +399,59 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
                         ],
                       ),
               ),
-              
-              // Meeting List: fills the remaining 50% below
               SizedBox(
-                height: constraints.maxHeight * 0.5, // Meeting list takes the rest
-                child: _buildSelectedDayEvents(), // Properly constrained now
+                height: constraints.maxHeight * 0.5, // Meeting list occupies bottom 50%
+                child: _buildSelectedDayEvents(),
               ),
             ],
           );
         },
       ),
+    );
+  }
+
+  // Display the list of events for the selected day
+  @override
+  Widget _buildSelectedDayEvents() {
+    if (_selectedDay == null) {
+      return Center(
+        child: Text(
+          'No day selected',
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
+      );
+    }
+  
+    List<calendar.Event> events = _getEventsForDay(_selectedDay!);
+  
+    if (events.isEmpty) {
+      return Center(
+        child: Text(
+          'No events for this day',
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
+      );
+    }
+  
+    return ListView.builder(
+      itemCount: events.length,
+      itemBuilder: (context, index) {
+        final event = events[index];
+        DateTime startTime = event.start?.dateTime?.toLocal() ?? DateTime.now();
+        DateTime endTime = event.end?.dateTime?.toLocal() ?? startTime.add(Duration(hours: 1));
+  
+        return ListTile(
+          title: Text(
+            '${event.summary ?? 'No Title'} (${DateFormat.jm().format(startTime)} - ${DateFormat.jm().format(endTime)})',
+            style: TextStyle(color: Colors.white),
+          ),
+          subtitle: Text(
+            'Scheduled by: ${event.organizer?.email ?? 'Unknown'}',
+            style: TextStyle(color: Colors.grey),
+          ),
+          onTap: () => _editOrDeleteEventPopup(context, event),
+        );
+      },
     );
   }
     
