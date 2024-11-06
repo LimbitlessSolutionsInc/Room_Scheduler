@@ -393,15 +393,14 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
       body: Column(
         children: [
           Expanded(
-            flex: 1,
             child: _viewMode == 'week'
                 ? _buildWeeklyView()
                 : Column(
+                    mainAxisSize: MainAxisSize.min, // Prevent calendar from expanding unnecessarily
                     children: [
                       _buildCalendarHeader(),
-                      Expanded(child: _buildCalendarGrid()),
-                      // No gap, directly below
-                      _buildSelectedDayEvents(), 
+                      _buildCalendarGrid(), // Calendar stays as it is
+                      _buildSelectedDayEvents(), // List starts immediately after
                     ],
                   ),
           ),
