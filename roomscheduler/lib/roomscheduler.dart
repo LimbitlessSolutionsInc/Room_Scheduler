@@ -413,58 +413,49 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
   Widget _buildSelectedDayEvents() {
     List<calendar.Event> events = _selectedDay != null ? _getEventsForDay(_selectedDay!) : [];
   
-    return Expanded(
+    return Container(
+      color: Colors.grey[850],
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            color: Colors.grey[850],
-            width: double.infinity,
+            padding: const EdgeInsets.all(8),
             child: Text(
               _selectedDay != null
                   ? 'Meetings for ${DateFormat.yMMMd().format(_selectedDay!)}'
                   : 'No day selected',
               style: const TextStyle(color: Colors.white, fontSize: 18),
-              textAlign: TextAlign.center,
             ),
           ),
-          Expanded( // Meeting list takes up all remaining space below calendar
-            child: Container(
-              color: Colors.grey[850], // Consistent background color
-              child: events.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No events for the selected day.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: events.length,
-                      itemBuilder: (context, index) {
-                        DateTime startTime = events[index].start?.dateTime?.toLocal() ?? DateTime.now();
-                        DateTime endTime = events[index].end?.dateTime?.toLocal() ?? startTime.add(const Duration(hours: 1));
-  
-                        return GestureDetector(
-                          onTap: () {
-                            _editOrDeleteEventPopup(context, events[index]);
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-                            padding: const EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                              color: Colors.teal.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            child: Text(
-                              '${DateFormat.jm().format(startTime)} - ${DateFormat.jm().format(endTime)}: ${events[index].summary ?? 'No Title'}',
-                              style: const TextStyle(fontSize: 16, color: Colors.white),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        );
-                      },
+          Expanded( // Ensure this part fully uses the available space
+            child: events.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No events for the selected day.',
+                      style: TextStyle(color: Colors.grey),
                     ),
-            ),
+                  )
+                : ListView.builder(
+                    itemCount: events.length,
+                    itemBuilder: (context, index) {
+                      DateTime startTime = events[index].start?.dateTime?.toLocal() ?? DateTime.now();
+                      DateTime endTime = events[index].end?.dateTime?.toLocal() ?? startTime.add(const Duration(hours: 1));
+  
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.teal.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Text(
+                          '${DateFormat.jm().format(startTime)} - ${DateFormat.jm().format(endTime)}: ${events[index].summary ?? 'No Title'}',
+                          style: const TextStyle(fontSize: 16, color: Colors.white),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
