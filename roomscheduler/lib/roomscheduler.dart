@@ -410,54 +410,59 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
   }
 
   // Display the list of events for the selected day
-  Widget _buildSelectedDayEvents() {
-    List<calendar.Event> events = _selectedDay != null ? _getEventsForDay(_selectedDay!) : [];
-  
-    return Container(
-      color: Colors.grey[850],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              _selectedDay != null
-                  ? 'Meetings for ${DateFormat.yMMMd().format(_selectedDay!)}'
-                  : 'No day selected',
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1E1E2C),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildRoomDropdown(),
+            const Expanded(
+              child: Center(
+                child: Text(
+                  'Schedule Room',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
-          ),
-          Expanded( // Ensure this part fully uses the available space
-            child: events.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No events for the selected day.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: events.length,
-                    itemBuilder: (context, index) {
-                      DateTime startTime = events[index].start?.dateTime?.toLocal() ?? DateTime.now();
-                      DateTime endTime = events[index].end?.dateTime?.toLocal() ?? startTime.add(const Duration(hours: 1));
-  
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.teal.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Text(
-                          '${DateFormat.jm().format(startTime)} - ${DateFormat.jm().format(endTime)}: ${events[index].summary ?? 'No Title'}',
-                          style: const TextStyle(fontSize: 16, color: Colors.white),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+            IconButton(
+              icon: Icon(_viewMode == 'week' ? Icons.view_module : Icons.view_week),
+              onPressed: () {
+                setState(() {
+                  _viewMode = _viewMode == 'week' ? 'month' : 'week';
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+      body: LayoutBuilder( // Use LayoutBuilder to dynamically allocate space
+        builder: (context, constraints) {
+          return Column(
+            children: [
+              // Calendar: fixed portion
+              SizedBox(
+                height: constraints.maxHeight * 0.5, // Calendar takes 50%
+                child: _viewMode == 'week'
+                    ? _buildWeeklyView()
+                    : Column(
+                        children: [
+                          _buildCalendarHeader(),
+                          Expanded(child: _buildCalendarGrid()),
+                        ],
+                      ),
+              ),
+              
+              // Meeting List: fills the remaining 50% below
+              SizedBox(
+                height: constraints.maxHeight * 0.5, // Meeting list takes the rest
+                child: _buildSelectedDayEvents(), // Properly constrained now
+              ),
+            ],
+          );
+        },
       ),
     );
   }
