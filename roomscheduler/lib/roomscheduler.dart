@@ -392,18 +392,17 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
       ),
       body: Column(
         children: [
-          Expanded(
-            child: _viewMode == 'week'
-                ? _buildWeeklyView()
-                : Column(
-                    mainAxisSize: MainAxisSize.min, // Prevent calendar from expanding unnecessarily
-                    children: [
-                      _buildCalendarHeader(),
-                      _buildCalendarGrid(), // Calendar stays as it is
-                      _buildSelectedDayEvents(), // List starts immediately after
-                    ],
-                  ),
-          ),
+          _viewMode == 'week'
+              ? Expanded(child: _buildWeeklyView())
+              : Column(
+                  children: [
+                    _buildCalendarHeader(),
+                    _buildCalendarGrid(),
+                    Flexible(
+                      child: _buildSelectedDayEvents(),
+                    ),
+                  ],
+                ),
         ],
       ),
     );
