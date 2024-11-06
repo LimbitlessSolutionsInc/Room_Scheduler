@@ -399,10 +399,13 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
                 : Column(
                     children: [
                       _buildCalendarHeader(),
-                      Expanded(child: _buildCalendarGrid()),
-                      // Add spacing directly below the calendar
-                      const SizedBox(height: 30), // Adjust this height as needed
-                      _buildSelectedDayEvents(),
+                      Expanded(
+                        child: _buildCalendarGrid(),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.4, 
+                        child: _buildSelectedDayEvents(),
+                      ),
                     ],
                   ),
           ),
