@@ -365,11 +365,17 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildRoomDropdown(),
-            const Expanded(
-              child: Center(
-                child: Text(
-                  'Schedule Room',
-                  style: TextStyle(color: Colors.white),
+            Expanded(
+              child: Visibility(
+                visible: MediaQuery.of(context).size.width > 585,
+                child: Transform.translate(
+                  offset: const Offset(-70, 0),
+                  child: const Center(
+                    child: Text(
+                      'Schedule Room',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -384,77 +390,98 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
           ],
         ),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Column(
-            children: [
-              SizedBox(
-                height: constraints.maxHeight * 0.5, // Calendar occupies top 50%
-                child: _viewMode == 'week'
-                    ? _buildWeeklyView()
-                    : Column(
-                        children: [
-                          _buildCalendarHeader(),
-                          Expanded(child: _buildCalendarGrid()),
-                        ],
-                      ),
-              ),
-              SizedBox(
-                height: constraints.maxHeight * 0.5, // Meeting list occupies bottom 50%
-                child: _buildSelectedDayEvents(),
-              ),
-            ],
-          );
-        },
+      body: Column(
+        children: [
+          Expanded(
+            flex: 2, // Calendar takes up 2/3 of the screen
+            child: _viewMode == 'week'
+                ? _buildWeeklyView()
+                : Column(
+                    children: [
+                      _buildCalendarHeader(),
+                      Expanded(child: _buildCalendarGrid()),
+                    ],
+                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0), // Add padding to separate list from calendar
+            child: Container(
+              height: 1,
+              color: Colors.grey, // Optional divider line
+            ),
+          ),
+          Expanded(
+            flex: 1, // List takes up 1/3 of the screen
+            child: _buildSelectedDayEvents(),
+          ),
+        ],
       ),
     );
   }
-
   // Display the list of events for the selected day
-  @override
   Widget _buildSelectedDayEvents() {
-    if (_selectedDay == null) {
-      return Center(
-        child: Text(
-          'No day selected',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+    List<calendar.Event> events = _selectedDay != null ? _getEventsForDay(_selectedDay!) : [];
+  
+    return Expanded( // Ensure it fills the remaining space dynamically
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(8),
+        color: Colors.grey[850],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_selectedDay != null)
+              Text(
+                'Meetings for ${DateFormat.yMMMd().format(_selectedDay!)}',
+                style: const TextStyle(color: Colors.white, fontSize: 24),
+              )
+            else
+              const Text(
+                'No day selected',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            const SizedBox(height: 8),
+            Expanded( // Allow the list to take up all remaining space and scroll if needed
+              child: events.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No events for the selected day.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        DateTime startTime = events[index].start?.dateTime?.toLocal() ?? DateTime.now();
+                        DateTime endTime = events[index].end?.dateTime?.toLocal() ?? startTime.add(const Duration(hours: 1));
+  
+                        return GestureDetector(
+                          onTap: () {
+                            _editOrDeleteEventPopup(context, events[index]);
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 5.0),
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: Colors.teal.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            child: Text(
+                              '${DateFormat.jm().format(startTime)} - ${DateFormat.jm().format(endTime)}: ${events[index].summary ?? 'No Title'}',
+                              style: const TextStyle(fontSize: 18, color: Colors.white),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
-      );
-    }
-  
-    List<calendar.Event> events = _getEventsForDay(_selectedDay!);
-  
-    if (events.isEmpty) {
-      return Center(
-        child: Text(
-          'No events for this day',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-      );
-    }
-  
-    return ListView.builder(
-      itemCount: events.length,
-      itemBuilder: (context, index) {
-        final event = events[index];
-        DateTime startTime = event.start?.dateTime?.toLocal() ?? DateTime.now();
-        DateTime endTime = event.end?.dateTime?.toLocal() ?? startTime.add(Duration(hours: 1));
-  
-        return ListTile(
-          title: Text(
-            '${event.summary ?? 'No Title'} (${DateFormat.jm().format(startTime)} - ${DateFormat.jm().format(endTime)})',
-            style: TextStyle(color: Colors.white),
-          ),
-          subtitle: Text(
-            'Scheduled by: ${event.organizer?.email ?? 'Unknown'}',
-            style: TextStyle(color: Colors.grey),
-          ),
-          onTap: () => _editOrDeleteEventPopup(context, event),
-        );
-      },
+      ),
     );
   }
-    
+  
   Widget _buildWeeklyView() {
     DateTime firstDayOfWeek = _firstDayOfWeek(_focusedDay);
     List<DateTime> weekDays = List.generate(7, (index) {
