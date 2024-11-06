@@ -409,6 +409,7 @@ class _ConferenceRoomSchedulerState extends State<ConferenceRoomScheduler> {
       ),
     );
   }
+  
   // Display the list of events for the selected day
   Widget _buildSelectedDayEvents() {
     List<calendar.Event> events = _selectedDay != null ? _getEventsForDay(_selectedDay!) : [];
